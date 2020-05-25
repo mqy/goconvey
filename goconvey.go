@@ -44,20 +44,25 @@ func flags() {
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications.")
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched.")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory).")
+	flag.StringVar(&static, "static-dir", "", "the static dir contains copied web/client/*, default the client dir of source code that goconvey was build from")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser.")
+
+	flag.Parse()
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 func folders() {
-	_, file, _, _ := runtime.Caller(0)
-	here := filepath.Dir(file)
-	static = filepath.Join(here, "/web/client")
+	if static == "" {
+		_, file, _, _ := runtime.Caller(0)
+		here := filepath.Dir(file)
+		static = filepath.Join(here, "/web/client")
+	}
 	reports = filepath.Join(static, "reports")
+	log.Printf("Reports dir: %s", reports)
 }
 
 func main() {
-	flag.Parse()
 	log.Printf(initialConfiguration, host, port, nap, cover)
 
 	working := getWorkDir()
